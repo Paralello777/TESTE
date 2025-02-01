@@ -1,11 +1,23 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { SearchCard } from "@/components/SearchCard";
+import { ResultsDisplay } from "@/components/ResultsDisplay";
+import { SearchResult } from "@/services/searchService";
 
 const Index = () => {
+  const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-background p-6">
+      <div className="space-y-8">
+        <SearchCard
+          onResultFound={setSearchResult}
+          onSearchStart={() => {
+            setIsLoading(true);
+            setSearchResult(null);
+          }}
+        />
+        <ResultsDisplay result={searchResult} isLoading={isLoading} />
       </div>
     </div>
   );
