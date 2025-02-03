@@ -4,44 +4,62 @@ import { SearchResult } from './searchService';
 const TRELLO_API_BASE_URL = 'https://api.trello.com/1';
 const BOARD_ID = '67a14905e98721cd0ac0f2b6';
 
-interface TrelloCard {
-  id: string;
-  name: string;
-  desc: string;
-  customFieldItems: {
-    idCustomField: string;
-    value: {
-      number?: string;
-      text?: string;
-    };
-  }[];
-}
+// Custom field IDs for the Trello board
+const CUSTOM_FIELDS = {
+  ORGAO: 'ORGAO_FIELD_ID',
+  VALOR_EMPENHADO: 'VALOR_EMPENHADO_FIELD_ID',
+  TRANSPORTADORA: 'TRANSPORTADORA_FIELD_ID',
+  PREVISAO_ENTREGA: 'PREVISAO_ENTREGA_FIELD_ID'
+};
+
+const trelloConfig = {
+  key: 'dff2c4e4f336c487ccd11a905d0f70f7',
+  token: 'ATTA0f684467b9426590d103253c2b9f35615258bd34469dc9e401b7ec564f752f1006949639'
+};
 
 export const searchTrelloCard = async (cardId: string): Promise<SearchResult> => {
   console.log('Searching Trello card:', cardId);
   
   try {
-    const response = await axios.get(`${TRELLO_API_BASE_URL}/cards/${cardId}`, {
+    // First, search for cards in the board that match our ID pattern
+    const cardsResponse = await axios.get(`${TRELLO_API_BASE_URL}/boards/${BOARD_ID}/cards`, {
       params: {
-        key: process.env.TRELLO_API_KEY,
-        token: process.env.TRELLO_TOKEN,
+        key: trelloConfig.key,
+        token: trelloConfig.token,
         customFieldItems: true
       }
     });
 
-    const card: TrelloCard = response.data;
-    console.log('Trello card data:', card);
+    // Find the card that matches our ID
+    const card = cardsResponse.data.find((c: any) => c.name.includes(cardId));
+    
+    if (!card) {
+      throw new Error('Cartão não encontrado');
+    }
 
+    // Get custom field items for the card
+    const customFieldsResponse = await axios.get(`${TRELLO_API_BASE_URL}/cards/${card.id}/customFieldItems`, {
+      params: {
+        key: trelloConfig.key,
+        token: trelloConfig.token
+      }
+    });
+
+    const customFields = customFieldsResponse.data;
+    console.log('Custom fields data:', customFields);
+
+    // Helper function to get custom field value
     const getCustomFieldValue = (fieldId: string): string => {
-      const field = card.customFieldItems.find(item => item.idCustomField === fieldId);
-      return field?.value.text || field?.value.number || '';
+      const field = customFields.find((f: any) => f.idCustomField === fieldId);
+      return field?.value?.text || field?.value?.number?.toString() || '';
     };
 
+    // Construct the result object
     const result: SearchResult = {
-      orgao: getCustomFieldValue('ORGAO_FIELD_ID'),
-      valorEmpenhado: Number(getCustomFieldValue('VALOR_EMPENHADO_FIELD_ID')) || 0,
-      transportadora: getCustomFieldValue('TRANSPORTADORA_FIELD_ID'),
-      previsaoEntrega: getCustomFieldValue('PREVISAO_ENTREGA_FIELD_ID')
+      orgao: getCustomFieldValue(CUSTOM_FIELDS.ORGAO),
+      valorEmpenhado: Number(getCustomFieldValue(CUSTOM_FIELDS.VALOR_EMPENHADO)) || 0,
+      transportadora: getCustomFieldValue(CUSTOM_FIELDS.TRANSPORTADORA),
+      previsaoEntrega: getCustomFieldValue(CUSTOM_FIELDS.PREVISAO_ENTREGA)
     };
 
     console.log('Processed result:', result);
