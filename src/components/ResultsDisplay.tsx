@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { SearchResult } from "@/services/searchService";
-import { CircleDollarSign, Package, ShoppingCart, Wallet } from "lucide-react";
+import { Building2, Truck, Calendar, DollarSign } from "lucide-react";
 
 interface ResultsDisplayProps {
   result: SearchResult | null;
@@ -42,27 +42,27 @@ export const ResultsDisplay = ({ result, isLoading }: ResultsDisplayProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-6xl mx-auto mt-8">
       <ResultCard
-        title="Faturamento"
-        value={result ? formatCurrency(result.faturamento) : 0}
-        icon={CircleDollarSign}
+        title="Órgão"
+        value={result?.orgao || ""}
+        icon={Building2}
         isLoading={isLoading}
       />
       <ResultCard
-        title="Quantidade de Itens"
-        value={result ? result.quantidadeItens : 0}
-        icon={Package}
+        title="Valor Empenhado"
+        value={result ? formatCurrency(result.valorEmpenhado) : 0}
+        icon={DollarSign}
         isLoading={isLoading}
       />
       <ResultCard
-        title="Quantidade de Vendas"
-        value={result ? result.quantidadeVendas : 0}
-        icon={ShoppingCart}
+        title="Transportadora"
+        value={result?.transportadora || ""}
+        icon={Truck}
         isLoading={isLoading}
       />
       <ResultCard
-        title="Despesas"
-        value={result ? formatCurrency(result.despesas) : 0}
-        icon={Wallet}
+        title="Previsão de Entrega"
+        value={result?.previsaoEntrega || ""}
+        icon={Calendar}
         isLoading={isLoading}
       />
     </div>

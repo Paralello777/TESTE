@@ -16,7 +16,7 @@ export const SearchCard = ({ onResultFound, onSearchStart }: SearchCardProps) =>
   const { toast } = useToast();
 
   const validateId = (id: string) => {
-    const regex = /^[A-Z]{3}\/2024$/;
+    const regex = /^\d{4}\/2024$/;
     return regex.test(id);
   };
 
@@ -25,7 +25,7 @@ export const SearchCard = ({ onResultFound, onSearchStart }: SearchCardProps) =>
       toast({
         variant: "destructive",
         title: "Formato inválido",
-        description: "O ID deve estar no formato XXX/2024",
+        description: "O ID deve estar no formato 1234/2024",
       });
       return;
     }
@@ -53,16 +53,16 @@ export const SearchCard = ({ onResultFound, onSearchStart }: SearchCardProps) =>
         <div className="space-y-2">
           <h2 className="text-2xl font-bold text-center">Pesquisa por ID</h2>
           <p className="text-sm text-muted-foreground text-center">
-            Digite o ID no formato XXX/2024
+            Digite o ID no formato 1234/2024
           </p>
         </div>
         <div className="flex space-x-2">
           <Input
-            placeholder="Ex: ABC/2024"
+            placeholder="Ex: 1234/2024"
             value={searchId}
-            onChange={(e) => setSearchId(e.target.value.toUpperCase())}
+            onChange={(e) => setSearchId(e.target.value)}
             className="flex-1"
-            maxLength={8}
+            maxLength={9}
           />
           <Button onClick={handleSearch} disabled={isLoading}>
             {isLoading ? "Buscando..." : "Buscar"}

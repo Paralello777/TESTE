@@ -2,6 +2,7 @@ import axios from 'axios';
 import { SearchResult } from './searchService';
 
 const TRELLO_API_BASE_URL = 'https://api.trello.com/1';
+const BOARD_ID = '67a14905e98721cd0ac0f2b6';
 
 interface TrelloCard {
   id: string;
@@ -31,18 +32,16 @@ export const searchTrelloCard = async (cardId: string): Promise<SearchResult> =>
     const card: TrelloCard = response.data;
     console.log('Trello card data:', card);
 
-    // Extrair valores dos campos customizados
-    const getCustomFieldValue = (fieldId: string): number => {
+    const getCustomFieldValue = (fieldId: string): string => {
       const field = card.customFieldItems.find(item => item.idCustomField === fieldId);
-      return field ? Number(field.value.number || field.value.text || 0) : 0;
+      return field?.value.text || field?.value.number || '';
     };
 
-    // Substitua estes IDs pelos IDs reais dos campos customizados do seu quadro Trello
     const result: SearchResult = {
-      faturamento: getCustomFieldValue('FATURAMENTO_FIELD_ID'),
-      quantidadeItens: getCustomFieldValue('QUANTIDADE_ITENS_FIELD_ID'),
-      quantidadeVendas: getCustomFieldValue('QUANTIDADE_VENDAS_FIELD_ID'),
-      despesas: getCustomFieldValue('DESPESAS_FIELD_ID')
+      orgao: getCustomFieldValue('ORGAO_FIELD_ID'),
+      valorEmpenhado: Number(getCustomFieldValue('VALOR_EMPENHADO_FIELD_ID')) || 0,
+      transportadora: getCustomFieldValue('TRANSPORTADORA_FIELD_ID'),
+      previsaoEntrega: getCustomFieldValue('PREVISAO_ENTREGA_FIELD_ID')
     };
 
     console.log('Processed result:', result);
